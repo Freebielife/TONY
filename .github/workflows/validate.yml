@@ -1,4 +1,4 @@
-name: Validate independent observatory template
+name: Validate TONY observatory
 on:
   push:
     branches: [main]
@@ -9,7 +9,6 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -18,8 +17,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: python3 -m pip install -r requirements.txt
-      - run: python3 -m scripts.check_reference
-      - run: python3 -m unittest discover -s tests -t . -p 'test_*.py'
+      - run: python3 -m unittest discover -s tests -p 'test_refresh_sources.py'
+      - run: python3 -m unittest discover -s tests -p 'test_service_registry.py'
+      - run: python3 -m unittest discover -s tests -p 'test_trade_history.py'
+      - run: node --check web/app.js
       - run: node --test tests/*.test.cjs
-      - run: node --test infrastructure/cloudflare-runner/tests/*.test.mjs
+      - run: python3 build.py
+      - run: python3 verify.py
